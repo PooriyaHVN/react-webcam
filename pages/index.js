@@ -1,6 +1,7 @@
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import styles from "../styles/Home.module.css";
 import Webcam from "react-webcam";
+import JSONTree from "react-json-tree";
 const async = require("async");
 const https = require("https");
 const path = require("path");
@@ -10,7 +11,7 @@ const ApiKeyCredentials = require("@azure/ms-rest-js").ApiKeyCredentials;
 
 const style = {
   width: "50%",
-  marginBottom: "1rem",
+  marginBottom: "0.5rem",
   background: "skyBlue",
   color: "#000",
   padding: "1rem",
@@ -38,17 +39,17 @@ function dataURLtoFile(dataurl, filename) {
 export default function Home() {
   const [webcamOn, setWebcamOn] = React.useState(false);
   const [imgSrc, setImgSrc] = React.useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [result, setResult] = React.useState(null);
   const webcamRef = React.useRef(null);
   const capture = React.useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
-    console.log(imageSrc);
+    setPreviewImage(imageSrc);
     setImgSrc(dataURLtoFile(imageSrc, "image.jpg"));
   }, [webcamRef, setImgSrc]);
 
   const sendToApi = e => {
     e.preventDefault();
-    console.log(imgSrc);
-    //Usage example:
     const formData = new FormData();
     formData.append("image", imgSrc);
     fetch("/api/ocr", {
@@ -57,14 +58,18 @@ export default function Home() {
     })
       .then(res => {
         console.log(res);
+        if (res.ok) {
+          setResult(res.text());
+        } else setResult({error: "ERROR"});
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
       });
   };
 
   return (
     <div className={styles.container}>
+      {result && <JSONTree data={JSON.stringify(result)} />}
       <button style={style} onClick={() => setWebcamOn(!webcamOn)}>
         Click to {webcamOn ? "close" : "Open"} web cam
       </button>
@@ -91,7 +96,7 @@ export default function Home() {
           </button>
           {imgSrc && (
             <>
-              <img src={imgSrc} />
+              <img src={previewImage} />
             </>
           )}
         </>

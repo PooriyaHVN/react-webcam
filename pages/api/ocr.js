@@ -3,7 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const formidable = require("formidable");
 const uploadDir = path.join("public", "uploads");
-const SITE_NAME = "https://microsoft-sor.vercel.app.com/";
+
+const SITE_NAME = "https://microsoft-sor-eq0x9dldx.vercel.app/";
 const uriBase = process.env.ENDPOINT + "vision/v3.1/ocr";
 const params = {
   language: "unk",
