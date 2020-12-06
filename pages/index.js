@@ -1,65 +1,128 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React, {useRef} from "react";
+import styles from "../styles/Home.module.css";
+import Webcam from "react-webcam";
+const async = require("async");
+const https = require("https");
+const path = require("path");
+const sleep = require("util").promisify(setTimeout);
+const ComputerVisionClient = require("@azure/cognitiveservices-computervision").ComputerVisionClient;
+const ApiKeyCredentials = require("@azure/ms-rest-js").ApiKeyCredentials;
+
+const style = {
+  width: "50%",
+  marginBottom: "1rem",
+  background: "skyBlue",
+  color: "#000",
+  padding: "1rem",
+  border: "1px solid black",
+  borderRadius: 25,
+  cursor: "pointer",
+  fontWeight: "bold",
+  outline: "none",
+};
+
+function dataURLtoFile(dataurl, filename) {
+  var arr = dataurl.split(","),
+    mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[1]),
+    n = bstr.length,
+    u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new File([u8arr], filename, {type: mime});
+}
 
 export default function Home() {
+  const [webcamOn, setWebcamOn] = React.useState(false);
+  const [imgSrc, setImgSrc] = React.useState(null);
+  const webcamRef = React.useRef(null);
+  const capture = React.useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    console.log(imageSrc);
+    setImgSrc(dataURLtoFile(imageSrc, "image.jpg"));
+  }, [webcamRef, setImgSrc]);
+
+  const sendToApi = e => {
+    e.preventDefault();
+    console.log(imgSrc);
+    //Usage example:
+    const formData = new FormData();
+    formData.append("image", imgSrc);
+    fetch("/api/ocr", {
+      method: "post",
+      body: formData,
+    })
+      .then(res => {
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <button style={style} onClick={() => setWebcamOn(!webcamOn)}>
+        Click to {webcamOn ? "close" : "Open"} web cam
+      </button>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
+      {webcamOn && (
+        <>
+          <Webcam ref={webcamRef} audio={false} height={280} ref={webcamRef} screenshotFormat="image/jpeg" width={480} />
+          <button
+            style={{
+              width: "25%",
+              marginTop: "1rem",
+              background: "skyBlue",
+              color: "#000",
+              padding: "1rem",
+              border: "1px solid black",
+              borderRadius: 25,
+              cursor: "pointer",
+              fontWeight: "bold",
+              outline: "none",
+            }}
+            onClick={capture}
           >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+            Capture photo
+          </button>
+          {imgSrc && (
+            <>
+              <img src={imgSrc} />
+            </>
+          )}
+        </>
+      )}
+      <form onSubmit={sendToApi} encType="multipart/form-data">
+        <input type="file" style={{padding: "1rem", background: "#333"}} onChange={e => setImgSrc(e.target.files[0])} />
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            marginTop: "1rem",
+            background: "skyBlue",
+            color: "#000",
+            padding: "1rem",
+            border: "1px solid black",
+            borderRadius: 25,
+            cursor: "pointer",
+            fontWeight: "bold",
+            outline: "none",
+          }}
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+          Send For Recognation{" "}
+        </button>
+      </form>
     </div>
-  )
+  );
 }
+
+/*  const computerVisionClient = new ComputerVisionClient(
+    new ApiKeyCredentials({
+      inHeader: {"Ocp-Apim-Subscription-Key": process.env.SUBSCRIPTIONKEY},
+    }),
+    process.env.ENDPOINT
+  ); */
