@@ -36,11 +36,11 @@ export default (req, res) => {
             let name = (files.image.name = uniqueSuffix + files?.image.name);
             if (err) reject(err.message);
             let imageUrl = name;
-            console.log(SITE_NAME + imageUrl);
+            console.log(SITE_NAME + "public/uploads/" + imageUrl);
             const options = {
               uri: uriBase,
               qs: params,
-              body: '{"url": ' + '"' + SITE_NAME + uploadDir + "/" + imageUrl + '"}',
+              body: '{"url": ' + '"' + SITE_NAME + "public/uploads/" + imageUrl + '"}',
               headers: {
                 "Content-Type": "application/json",
                 "Ocp-Apim-Subscription-Key": process.env.SUBSCRIPTIONKEY,
