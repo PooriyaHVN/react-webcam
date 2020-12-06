@@ -28,8 +28,8 @@ export default (req, res) => {
         if (err) return reject(err);
         if (!files.image) return reject("Please Select Image");
         fs.rename(
-          `${uploadDir}/${files.image?.path.replace("public", "").replace("uploads", "")}`,
-          `${uploadDir}/${uniqueSuffix + files?.image.name}`,
+          `/uploads/${files.image?.path.replace("public", "").replace("uploads", "")}`,
+          `/uploads/${uniqueSuffix + files?.image.name}`,
           err => {
             if (err) reject(err.message);
             let name = (files.image.name = uniqueSuffix + files?.image.name);
