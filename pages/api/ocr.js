@@ -17,30 +17,30 @@ export const config = {
 };
 const uniqueSuffix = Date.now() + "-";
 export default (req, res) => {
-  const form = formidable({
-    keepExtensions: true,
-    uploadDir,
-  });
+  try {
+    const form = formidable({
+      keepExtensions: true,
+      uploadDir,
+    });
 
-  new Promise((resolve, reject) => {
-    form.once("error", err => reject(err));
-    form.parse(req, (err, fields, files) => {
-      if (err) return reject(err);
-      if (!files.image) return reject("Please Select Image");
-      fs.rename(
-        `${uploadDir}/${files.image?.path.replace("public", "").replace("uploads", "")}`,
-        `${uploadDir}/${uniqueSuffix + files?.image.name}`,
-        err => {
-          if (err) reject(err.message);
-          let name = (files.image.name = uniqueSuffix + files?.image.name);
-          fs.readFile(`${uploadDir}/${uniqueSuffix + files?.image.name}`, (err, data) => {
+    new Promise((resolve, reject) => {
+      form.once("error", err => reject(err));
+      form.parse(req, (err, fields, files) => {
+        if (err) return reject(err);
+        if (!files.image) return reject("Please Select Image");
+        fs.rename(
+          `${uploadDir}/${files.image?.path.replace("public", "").replace("uploads", "")}`,
+          `${uploadDir}/${uniqueSuffix + files?.image.name}`,
+          err => {
+            if (err) reject(err.message);
+            let name = (files.image.name = uniqueSuffix + files?.image.name);
             if (err) reject(err.message);
             let imageUrl = name;
             console.log(SITE_NAME + imageUrl);
             const options = {
               uri: uriBase,
               qs: params,
-              body: '{"url": ' + '"' + SITE_NAME + imageUrl + '"}',
+              body: '{"url": ' + '"' + SITE_NAME + uploadDir + "/" + imageUrl + '"}',
               headers: {
                 "Content-Type": "application/json",
                 "Ocp-Apim-Subscription-Key": process.env.SUBSCRIPTIONKEY,
@@ -52,16 +52,22 @@ export default (req, res) => {
                 reject(error);
                 return;
               }
-              let jsonResponse = JSON.stringify(JSON.parse(body), null, "  ");
-              console.log("JSON Response\n");
-              console.log(jsonResponse);
-              resolve(jsonResponse);
+              if (response.statusCode == 200) {
+                let jsonResponse = JSON.stringify(JSON.parse(body), null, "  ");
+                console.log("JSON Response\n");
+                console.log(jsonResponse);
+                resolve(jsonResponse);
+              } else reject("error from microsoft server : " + response.statusMessage);
             });
-          });
-        }
-      );
-    });
-  })
-    .then(result => res.send(result))
-    .catch(err => res.status(500).send(err));
+          }
+        );
+      });
+    })
+      .then(result => {
+        res.send(result);
+      })
+      .catch(err => res.status(500).send(err));
+  } catch (e) {
+    console.log(e);
+  }
 };

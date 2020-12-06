@@ -53,13 +53,13 @@ export default function Home() {
     const formData = new FormData();
     formData.append("image", imgSrc);
     fetch("/api/ocr", {
-      method: "post",
+      method: "POST",
       body: formData,
     })
       .then(res => {
         console.log(res);
         if (res.ok) {
-          setResult(res.text());
+          res.text().then(res2 => setResult(res2));
         } else setResult({error: "ERROR"});
       })
       .catch(err => {
@@ -69,7 +69,7 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      {result && <JSONTree data={JSON.stringify(result)} />}
+      {result && <JSONTree data={result} />}
       <button style={style} onClick={() => setWebcamOn(!webcamOn)}>
         Click to {webcamOn ? "close" : "Open"} web cam
       </button>
