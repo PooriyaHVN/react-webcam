@@ -52,7 +52,7 @@ export default function Home() {
     e.preventDefault();
     const formData = new FormData();
     formData.append("image", imgSrc);
-    fetch("/api/ocr", {
+    fetch("https://microsoft-sor-93mth8y3m.vercel.app/api/ocr", {
       method: "POST",
       body: formData,
     })
