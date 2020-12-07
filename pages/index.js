@@ -53,7 +53,7 @@ export default function Home() {
     e.preventDefault();
     const formData = new FormData();
     formData.append("image", imgSrc);
-    fetch("api/ocr", {
+    fetch("/api/ocr", {
       method: "POST",
       body: formData,
     })
