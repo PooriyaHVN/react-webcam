@@ -1,10 +1,9 @@
-import {FILE_PATH} from "../../env";
+import {FILE_PATH, SITE_NAME} from "../../env";
 
 const request = require("request");
 const fs = require("fs");
 const path = require("path");
 const formidable = require("formidable");
-const SITE_NAME = "https://microsoft-sor-93mth8y3m.vercel.app/";
 const uriBase = process.env.ENDPOINT + "vision/v3.1/ocr";
 const params = {
   language: "unk",
