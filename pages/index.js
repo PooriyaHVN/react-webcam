@@ -71,7 +71,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       {result && <JSONTree data={result} />}
-      <img style={{width: "100px", height: "100px", border: "3px solid blue"}} src={"/uploads/1607297196774-20170311_182214.jpg"} />
+      <img style={{width: "100px", height: "100px", border: "3px solid blue"}} src={"/uploads/1607306492526-20181205_211426.jpg"} />
       <button style={style} onClick={() => setWebcamOn(!webcamOn)}>
         Click to {webcamOn ? "close" : "Open"} web cam
       </button>
