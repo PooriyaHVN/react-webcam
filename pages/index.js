@@ -2,6 +2,7 @@ import React, {useRef, useState} from "react";
 import styles from "../styles/Home.module.css";
 import Webcam from "react-webcam";
 import JSONTree from "react-json-tree";
+import {FILE_PATH} from "../env";
 const async = require("async");
 const https = require("https");
 const path = require("path");
@@ -70,6 +71,7 @@ export default function Home() {
   return (
     <div className={styles.container}>
       {result && <JSONTree data={result} />}
+      <img style={{width: "100px", height: "100px"}} src={"/uploads/1607297196774-20170311_182214.jpg"} />
       <button style={style} onClick={() => setWebcamOn(!webcamOn)}>
         Click to {webcamOn ? "close" : "Open"} web cam
       </button>

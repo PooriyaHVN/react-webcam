@@ -1,8 +1,9 @@
+import {FILE_PATH} from "../../env";
+
 const request = require("request");
 const fs = require("fs");
 const path = require("path");
 const formidable = require("formidable");
-const uploadDir = path.join("public", "uploads");
 const SITE_NAME = "https://microsoft-sor-93mth8y3m.vercel.app/";
 const uriBase = process.env.ENDPOINT + "vision/v3.1/ocr";
 const params = {
@@ -21,15 +22,14 @@ export default (req, res) => {
       keepExtensions: true,
       uploadDir,
     });
-
     new Promise((resolve, reject) => {
       form.once("error", err => reject(err));
       form.parse(req, (err, fields, files) => {
         if (err) return reject(err);
         if (!files.image) return reject("Please Select Image");
         fs.rename(
-          `/uploads/${files.image?.path.replace("public", "").replace("uploads", "")}`,
-          `/uploads/${uniqueSuffix + files?.image.name}`,
+          `${FILE_PATH}/${files.image.path.replace("public", "").replace("uploads", "")}`,
+          ` ${FILE_PATH}/${uniqueSuffix + files.image.name}`,
           err => {
             if (err) reject(err.message);
             let name = (files.image.name = uniqueSuffix + files?.image.name);
