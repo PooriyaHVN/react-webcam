@@ -1,5 +1,4 @@
-import {FILE_PATH, SITE_NAME} from "../../env";
-
+import {DEV_SITE_NAME, FILE_PATH, SITE_NAME} from "../../env";
 const request = require("request");
 const fs = require("fs");
 const path = require("path");
@@ -19,7 +18,7 @@ export default (req, res) => {
   try {
     const form = formidable({
       keepExtensions: true,
-      uploadDir,
+      uploadDir: FILE_PATH,
     });
     new Promise((resolve, reject) => {
       form.once("error", err => reject(err));
@@ -27,18 +26,21 @@ export default (req, res) => {
         if (err) return reject(err);
         if (!files.image) return reject("Please Select Image");
         fs.rename(
-          `${FILE_PATH}/${files.image.path.replace("public", "").replace("uploads", "")}`,
-          ` ${FILE_PATH}/${uniqueSuffix + files.image.name}`,
+          `${FILE_PATH}${files.image.path.replace("public", "").replace("uploads", "")}`,
+          `${FILE_PATH}/${uniqueSuffix + files.image.name}`,
           err => {
-            if (err) reject(err.message);
+            if (err) {
+              console.log(err);
+              reject(err.message);
+            }
             let name = (files.image.name = uniqueSuffix + files?.image.name);
             if (err) reject(err.message);
             let imageUrl = name;
-            console.log(SITE_NAME + "uploads/" + imageUrl);
+            console.log(DEV_SITE_NAME + "uploads/" + imageUrl);
             const options = {
               uri: uriBase,
               qs: params,
-              body: '{"url": ' + '"' + SITE_NAME + "uploads/" + imageUrl + '"}',
+              body: '{"url": ' + '"' + DEV_SITE_NAME + "uploads/" + imageUrl + '"}',
               headers: {
                 "Content-Type": "application/json",
                 "Ocp-Apim-Subscription-Key": process.env.SUBSCRIPTIONKEY,
