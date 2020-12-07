@@ -1,4 +1,4 @@
-import {DEV_SITE_NAME, FILE_PATH, SITE_NAME} from "../../env";
+import {DEV_SITE_NAME, FILE_PATH, FULL_FILE_PATH, SITE_NAME} from "../../env";
 const request = require("request");
 const fs = require("fs");
 const path = require("path");
@@ -25,6 +25,7 @@ export default (req, res) => {
       form.parse(req, (err, fields, files) => {
         if (err) return reject(err);
         if (!files.image) return reject("Please Select Image");
+        console.log(">>>>>>>>>>>>>>>>>", files.image.path);
         fs.rename(
           `${FILE_PATH}${files.image.path.replace("public", "").replace("uploads", "")}`,
           `${FILE_PATH}/${uniqueSuffix + files.image.name}`,
@@ -36,11 +37,11 @@ export default (req, res) => {
             let name = (files.image.name = uniqueSuffix + files?.image.name);
             if (err) reject(err.message);
             let imageUrl = name;
-            console.log(SITE_NAME + "/uploads/" + imageUrl);
+            console.log(FULL_FILE_PATH + "/uploads/" + imageUrl);
             const options = {
               uri: uriBase,
               qs: params,
-              body: '{"url": ' + '"' + SITE_NAME + "/uploads/" + imageUrl + '"}',
+              body: '{"url": ' + '"' + FULL_FILE_PATH + "/uploads/" + imageUrl + '"}',
               headers: {
                 "Content-Type": "application/json",
                 "Ocp-Apim-Subscription-Key": process.env.SUBSCRIPTIONKEY,
